@@ -2,16 +2,11 @@
 *.pyc
 __pycache__/
 
-# Ignore log files
-*.log
-
-# Ignore databases
-*.db
-
 # Ignore virtual environment
 .venv/
 
-# Do not ignore static files
-!backend/static/
-!backend/static/js/
-!backend/static/style.css.txt
+# Do not ignore backend and static files
+!Python313/backend/
+!Python313/backend/static/
+!Python313/backend/static/js/
+!Python313/backend/static/style.css.txt

@@ -1,0 +1,134 @@
+// script.js
+console.log("JavaScript loaded successfully!");
+
+async function getRecommendation() {
+    try {
+        const response = await fetch('/analyze/', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                views: parseInt(document.getElementById('views').value) || 0,
+                clicks: parseInt(document.getElementById('clicks').value) || 0,
+                orders: parseInt(document.getElementById('orders').value) || 0,
+                revenue: parseFloat(document.getElementById('revenue').value) || 0.0,
+                spend: parseFloat(document.getElementById('spend').value) || 0.0
+            })
+        });
+
+        const result = await response.json();
+
+        // Kiểm tra phản hồi từ backend
+        if (result.status === "success") {
+            document.getElementById("proposals").innerHTML = result.recommendation;
+        } else {
+            document.getElementById("proposals").innerHTML = "Không có đề xuất nào.";
+        }
+    } catch (error) {
+        console.error("Lỗi khi gửi yêu cầu:", error);
+        document.getElementById("proposals").innerHTML = "Đã xảy ra lỗi khi phân tích dữ liệu.";
+    }
+}
+
+const logoutButton = document.getElementById('logout');
+if (logoutButton) {
+    logoutButton.addEventListener('click', logoutUser);
+}
+
+const adminDashboard = document.getElementById('admin-dashboard');
+if (adminDashboard) {
+    adminDashboard.style.display = 'none';
+}
+
+
+function updateCharts(data) {
+    for (const [key, values] of Object.entries(data)) {
+        const chartElement = document.getElementById(`${key}-chart`);
+        if (chartElement) {
+            new Chart(chartElement, {
+                type: 'bar',
+                data: {
+                    labels: ['Current', 'Average'],
+                    datasets: [{
+                        label: key.toUpperCase(),
+                        data: [values.current, values.average],
+                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 159, 64, 0.2)'],
+                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+}
+
+
+async function renderHistoryChart() {
+    const response = await fetch(`${API_URL}/history/`);
+    const history = await response.json();
+
+    // Hủy biểu đồ cũ nếu đã tồn tại
+    const existingChart = Chart.getChart("historyChart");
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const labels = history.map(entry => new Date(entry.timestamp).toLocaleString());
+    const ctrData = history.map(entry => entry.ctr);
+    const crData = history.map(entry => entry.cr);
+    const cppData = history.map(entry => entry.cpp);
+    const roiData = history.map(entry => entry.roi);
+
+    const ctx = document.getElementById("historyChart").getContext("2d");
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "CTR (%)",
+                    data: ctrData,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderWidth: 1
+                },
+                {
+                    label: "CR (%)",
+                    data: crData,
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderWidth: 1
+                },
+                {
+                    label: "CPP (USD)",
+                    data: cppData,
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    borderWidth: 1
+                },
+                {
+                    label: "ROI (%)",
+                    data: roiData,
+                    borderColor: "rgba(255, 206, 86, 1)",
+                    backgroundColor: "rgba(255, 206, 86, 0.2)",
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "top"
+                }
+            }
+        }
+    });
+}

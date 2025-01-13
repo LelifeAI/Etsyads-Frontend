@@ -1,0 +1,17 @@
+# Ignore Python cache files
+*.pyc
+__pycache__/
+
+# Ignore log files
+*.log
+
+# Ignore databases
+*.db
+
+# Ignore virtual environment
+.venv/
+
+# Do not ignore static files
+!backend/static/
+!backend/static/js/
+!backend/static/style.css.txt

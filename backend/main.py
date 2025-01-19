@@ -59,7 +59,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 static_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "static"))
 
 # Mount thư mục static
-app.mount("/static", StaticFiles(directory=static_directory), name="static")
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
